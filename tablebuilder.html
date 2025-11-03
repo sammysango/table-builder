@@ -1,0 +1,959 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Table builder</title>
+    <style>
+      :root {
+        --connect-card: #0f1220;
+        --bg-3: #1b2139;
+        --chart-header: #151a2d;
+        --chart-header-text: #e5edff;
+        --consumer-purple-dark: #6a1fa7;
+        --consumer-purple-light: #f0d6ff;
+        --consumer-blue-dark: #190066;
+        --consumer-blue-light: #cce7ff;
+        --consumer-green-dark: #013330;
+        --consumer-green-light: #d0f987;
+        --consumer-orange-dark: #661800;
+        --consumer-orange-light: #ffa680;
+        --ink: rgb(217, 221, 243);
+        --ui-surface: #0a0d1a;
+        --ui-surface-2: #0d1124;
+        --ui-border: #263056;
+        --ui-muted: #99a4c2;
+        --primary: #6aa0ff;
+        --focus: #77b7ff;
+      }
+
+      html,
+      body {
+        background: linear-gradient(180deg, #090d1a 0%, #0b0f20 100%);
+        color: var(--ink);
+        margin: 0;
+        font-family:
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          Segoe UI,
+          Roboto,
+          Helvetica,
+          Arial,
+          'Apple Color Emoji',
+          'Segoe UI Emoji';
+      }
+
+      .wrap {
+        max-width: 1100px;
+        margin: 24px auto 80px;
+        padding: 0 16px;
+      }
+
+      h1 {
+        font-size: 1.6rem;
+        margin: 0;
+        letter-spacing: 0.2px;
+      }
+
+      .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 0 0 16px;
+      }
+      .toggle {
+        display: inline-grid;
+        grid-auto-flow: column;
+        gap: 10px;
+        align-items: center;
+        background: var(--ui-surface-2);
+        border: 1px solid var(--ui-border);
+        padding: 6px 10px;
+        border-radius: 999px;
+      }
+      .toggle button {
+        background: #162143;
+        color: #deebff;
+        border: 1px solid var(--ui-border);
+        border-radius: 999px;
+        padding: 6px 12px;
+        cursor: pointer;
+        font-weight: 600;
+      }
+      .toggle button[aria-pressed='true'] {
+        background: var(--primary);
+        border-color: transparent;
+        color: #061229;
+      }
+
+      .panel {
+        background: var(--ui-surface-2);
+        border: 1px solid var(--ui-border);
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 16px;
+      }
+
+      .row {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+
+      .row.column {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      label {
+        font-size: 0.95rem;
+        color: var(--ui-muted);
+      }
+
+      input[type='text'],
+      input[type='number'] {
+        background: #0b1228;
+        color: var(--ink);
+        border: 1px solid var(--ui-border);
+        border-radius: 8px;
+        padding: 8px 10px;
+        outline: none;
+      }
+      input[type='number'] {
+        width: 84px;
+      }
+
+      .radio-group {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+      }
+
+      .ratio-inputs {
+        display: none;
+        width: 100%;
+        gap: 8px;
+        align-items: center;
+        margin-top: 10px;
+        flex-wrap: wrap;
+      }
+
+      .swatch-row {
+        display: grid;
+        grid-auto-flow: column;
+        gap: 8px;
+        align-items: center;
+        justify-content: start;
+      }
+      .swatch {
+        width: 22px;
+        height: 22px;
+        border-radius: 6px;
+        border: 2px solid transparent;
+        cursor: pointer;
+        outline: none;
+      }
+
+      .swatch[data-name='default'] {
+        background: var(--chart-header);
+      }
+      .swatch[data-name='purple'] {
+        background: var(--preset-purple-bg, rgba(208, 117, 255, 0.35));
+      }
+      .swatch[data-name='blue'] {
+        background: var(--preset-blue-bg, rgba(22, 127, 255, 0.35));
+      }
+      .swatch[data-name='green'] {
+        background: var(--preset-green-bg, rgba(94, 242, 74, 0.35));
+      }
+      .swatch[data-name='orange'] {
+        background: var(--preset-orange-bg, rgba(255, 92, 22, 0.35));
+      }
+
+      .swatch[aria-pressed='true'] {
+        border-color: var(--focus);
+        box-shadow: 0 0 0 3px rgba(119, 183, 255, 0.25);
+      }
+
+      .controls-grid {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 16px;
+      }
+      .controls-grid .right {
+        display: grid;
+        gap: 12px;
+        align-content: start;
+      }
+
+      .btn {
+        background: #162143;
+        color: #deebff;
+        border: 1px solid var(--ui-border);
+        border-radius: 10px;
+        padding: 10px 14px;
+        cursor: pointer;
+      }
+      .btn:hover {
+        filter: brightness(1.05);
+      }
+      .btn:active {
+        transform: translateY(1px);
+      }
+
+      .mini {
+        width: 34px;
+        height: 34px;
+        display: inline-grid;
+        place-items: center;
+        font-weight: 700;
+        border-radius: 10px;
+      }
+
+      .preview--dark {
+        --preview-panel-bg: #0b1228;
+        --bg-3: var(--preview-panel-bg);
+        --connect-card: #0f1220;
+        --chart-header: #151a2d;
+        --chart-header-text: #e5edff;
+        --consumer-purple-dark: #3d065f;
+        --consumer-purple-light: #eac2ff;
+        --consumer-blue-dark: #190066;
+        --consumer-blue-light: #cce7ff;
+        --consumer-green-dark: #013330;
+        --consumer-green-light: #e5ffc3;
+        --consumer-orange-dark: #661800;
+        --consumer-orange-light: #ffa680;
+        --preset-purple-bg: rgba(208, 117, 255, 0.1);
+        --preset-blue-bg: rgba(22, 127, 255, 0.1);
+        --preset-green-bg: rgba(94, 242, 74, 0.1);
+        --preset-orange-bg: rgba(255, 92, 22, 0.1);
+        --preview-body-text: #e6ecff;
+      }
+
+      .preview--light {
+        --preview-panel-bg: #ffffff;
+        --bg-3: var(--preview-panel-bg);
+        --connect-card: #ffffff;
+        --chart-header: #f3f6ff;
+        --chart-header-text: #102046;
+        --consumer-purple-dark: #3d065f;
+        --consumer-purple-light: #eac2ff;
+        --consumer-blue-dark: #190066;
+        --consumer-blue-light: #cce7ff;
+        --consumer-green-dark: #013330;
+        --consumer-green-light: #e5ffc3;
+        --consumer-orange-dark: #661800;
+        --consumer-orange-light: #ffa680;
+        --preset-purple-bg: rgba(208, 117, 255, 0.16);
+        --preset-blue-bg: rgba(22, 127, 255, 0.15);
+        --preset-green-bg: rgba(94, 242, 74, 0.15);
+        --preset-orange-bg: rgba(255, 92, 22, 0.15);
+        --preview-body-text: #0b1228;
+      }
+
+      .preview-wrap {
+        padding: 16px;
+        border-radius: 14px;
+        border: 1px solid var(--ui-border);
+        background: var(--preview-panel-bg, #0b1228);
+        overflow: hidden;
+      }
+
+      .scrollWrap {
+        width: 100%;
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior-x: contain;
+      }
+      .scrollWrap:focus-visible {
+        outline: 2px solid var(--focus);
+        outline-offset: 2px;
+      }
+
+      /* Bold controls row (per-column) */
+      .bold-controls {
+        display: grid;
+        gap: 8px;
+        margin-bottom: 8px;
+        min-width: max-content; /* so it can scroll with the table when wider */
+      }
+      .boldToggle {
+        width: 36px;
+        height: 32px;
+        background: #162143;
+        color: #deebff;
+        border: 1px solid var(--ui-border);
+        border-radius: 8px;
+        cursor: pointer;
+      }
+      .boldToggle[aria-pressed='true'] {
+        background: var(--primary);
+        border-color: transparent;
+        color: #061229;
+        font-weight: 700;
+      }
+
+      /* NEW: Align controls row (per-column) */
+      .align-controls {
+        display: grid;
+        gap: 8px;
+        margin-bottom: 8px;
+        min-width: max-content;
+      }
+      .alignGroup {
+        display: inline-grid;
+        grid-auto-flow: column;
+        gap: 6px;
+        align-items: center;
+        justify-content: center;
+      }
+      .alignBtn {
+        width: 30px;
+        height: 30px;
+        background: #162143;
+        color: #deebff;
+        border: 1px solid var(--ui-border);
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        line-height: 1;
+      }
+      .alignBtn[aria-pressed='true'] {
+        background: var(--primary);
+        border-color: transparent;
+        color: #061229;
+      }
+
+      table.table.dataTable {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        font-size: 0.95rem;
+        table-layout: auto;
+        --table-grid: 2px;
+      }
+      tbody tr:nth-child(even),
+      tbody tr:nth-child(odd),
+      td {
+        background: var(--connect-card);
+      }
+
+      th,
+      td {
+        padding: 12px;
+        text-align: left;
+        vertical-align: top;
+      }
+
+      .table th,
+      .table td {
+        border: 0;
+        border-top: var(--table-grid) solid var(--bg-3);
+        border-left: var(--table-grid) solid var(--bg-3);
+      }
+      .table tr > *:last-child {
+        border-right: var(--table-grid) solid var(--bg-3);
+      }
+      .table tbody tr:last-child > * {
+        border-bottom: var(--table-grid) solid var(--bg-3);
+      }
+      .table thead tr:first-child > * {
+        border-top: var(--table-grid) solid var(--bg-3);
+      }
+
+      .mainHeader th {
+        background: var(--chart-header);
+        color: var(--chart-header-text);
+        font-size: 1.6rem;
+        height: 4.5rem;
+        text-align: center;
+        vertical-align: middle;
+        padding: 0 0.8rem;
+      }
+
+      .dataTable tbody tr:hover td {
+        filter: brightness(0.985);
+      }
+      .dataTable tbody td:nth-child(1) {
+        background: var(--col1-bg, inherit);
+        color: var(--col1-text, inherit);
+      }
+      .dataTable tbody td:nth-child(2) {
+        background: var(--col2-bg, inherit);
+        color: var(--col2-text, inherit);
+      }
+      .dataTable tbody td:nth-child(3) {
+        background: var(--col3-bg, inherit);
+        color: var(--col3-text, inherit);
+      }
+      .dataTable tbody td:nth-child(4) {
+        background: var(--col4-bg, inherit);
+        color: var(--col4-text, inherit);
+      }
+      .dataTable tbody td:nth-child(5) {
+        background: var(--col5-bg, inherit);
+        color: var(--col5-text, inherit);
+      }
+      .dataTable tbody td:nth-child(6) {
+        background: var(--col6-bg, inherit);
+        color: var(--col6-text, inherit);
+      }
+      .dataTable tbody td:nth-child(7) {
+        background: var(--col7-bg, inherit);
+        color: var(--col7-text, inherit);
+      }
+      .dataTable tbody td:nth-child(8) {
+        background: var(--col8-bg, inherit);
+        color: var(--col8-text, inherit);
+      }
+      .dataTable thead .mainHeader th:nth-child(1) {
+        background: var(--head1-bg, var(--chart-header));
+        color: var(--head1-text, var(--chart-header-text));
+      }
+      .dataTable thead .mainHeader th:nth-child(2) {
+        background: var(--head2-bg, var(--chart-header));
+        color: var(--head2-text, var(--chart-header-text));
+      }
+      .dataTable thead .mainHeader th:nth-child(3) {
+        background: var(--head3-bg, var(--chart-header));
+        color: var(--head3-text, var(--chart-header-text));
+      }
+      .dataTable thead .mainHeader th:nth-child(4) {
+        background: var(--head4-bg, var(--chart-header));
+        color: var(--head4-text, var(--chart-header-text));
+      }
+      .dataTable thead .mainHeader th:nth-child(5) {
+        background: var(--head5-bg, var(--chart-header));
+        color: var(--head5-text, var(--chart-header-text));
+      }
+      .dataTable thead .mainHeader th:nth-child(6) {
+        background: var(--head6-bg, var(--chart-header));
+        color: var(--head6-text, var(--chart-header-text));
+      }
+      .dataTable thead .mainHeader th:nth-child(7) {
+        background: var(--head7-bg, var(--chart-header));
+        color: var(--head7-text, var(--chart-header-text));
+      }
+      .dataTable thead .mainHeader th:nth-child(8) {
+        background: var(--head8-bg, var(--chart-header));
+        color: var(--head8-text, var(--chart-header-text));
+      }
+
+      .dataTable thead tr {
+        border-bottom: 0 !important;
+      }
+
+      td[contenteditable='true'],
+      th[contenteditable='true'] {
+        outline: none;
+      }
+      td[contenteditable='true']:focus,
+      th[contenteditable='true']:focus {
+        box-shadow: inset 0 0 0 2px rgba(119, 183, 255, 0.45);
+        border-radius: 6px;
+      }
+
+      .footer-actions {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 12px;
+      }
+
+      .code-area {
+        background: #0a1126;
+        border: 1px solid var(--ui-border);
+        color: #dfe6ff;
+        width: 100%;
+        min-height: 160px;
+        border-radius: 10px;
+        padding: 12px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+        font-size: 12.5px;
+        resize: vertical;
+        max-height: 70vh;
+        box-sizing: border-box;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="topbar">
+        <h1>Table builder</h1>
+        <div class="toggle" role="group" aria-label="Preview theme">
+          <button id="lightBtn" aria-pressed="false">Light</button>
+          <button id="darkBtn" aria-pressed="true">Dark</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="row" id="widthModeGroup">
+          <label><input type="radio" name="widthmode" value="equal" checked /> Equal spacing</label>
+          <label><input type="radio" name="widthmode" value="content" /> Adjust to fit content</label>
+          <label><input type="radio" name="widthmode" value="custom" /> Custom ratio</label>
+        </div>
+        <div id="ratiosWrap" class="ratio-inputs"></div>
+      </div>
+
+      <div class="panel controls-grid">
+        <div>
+          <div id="columnControls"></div>
+        </div>
+        <div class="right">
+          <div class="row">
+            <span style="min-width: 120px; color: var(--ui-muted)">Columns</span>
+            <button class="btn mini" id="delCol">−</button>
+            <button class="btn mini" id="addCol">+</button>
+          </div>
+          <div class="row">
+            <span style="min-width: 120px; color: var(--ui-muted)">Rows</span>
+            <button class="btn mini" id="delRow">−</button>
+            <button class="btn mini" id="addRow">+</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="previewHost" class="preview--dark">
+        <div class="panel preview-wrap">
+          <div class="scrollWrap" tabindex="0" aria-label="Scrollable table">
+            <!-- Controls live inside the scroll area so they align/scroll with the table -->
+            <div id="boldControls" class="bold-controls"></div>
+            <!-- NEW: alignment controls row -->
+            <div id="alignControls" class="align-controls"></div>
+
+            <table class="table dataTable" id="previewTable">
+              <colgroup id="colgroup"></colgroup>
+              <thead>
+                <tr class="mainHeader" id="theadRow"></tr>
+              </thead>
+              <tbody id="tbody"></tbody>
+            </table>
+          </div>
+          <div class="footer-actions">
+            <div>
+              <button class="btn" id="copyBtn">Copy code</button>
+              <span id="copiedNote" style="margin-left: 8px; color: var(--ui-muted); display: none">Copied ✓</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <textarea id="codeOut" class="code-area" spellcheck="false"></textarea>
+      </div>
+    </div>
+
+    <script>
+      ;(function () {
+        const PRESET_MAP = {
+          default: {
+            headBg: 'var(--chart-header)',
+            headText: 'var(--chart-header-text)',
+            bodyBg: 'var(--connect-card)',
+            bodyText: 'var(--preview-body-text)',
+          },
+          purple: {
+            headBg: 'var(--consumer-purple-dark)',
+            headText: 'var(--consumer-purple-light)',
+            bodyBg: 'var(--preset-purple-bg)',
+            bodyText: 'var(--preview-body-text)',
+          },
+          blue: {
+            headBg: 'var(--consumer-blue-dark)',
+            headText: 'var(--consumer-blue-light)',
+            bodyBg: 'var(--preset-blue-bg)',
+            bodyText: 'var(--preview-body-text)',
+          },
+          green: {
+            headBg: 'var(--consumer-green-dark)',
+            headText: 'var(--consumer-green-light)',
+            bodyBg: 'var(--preset-green-bg)',
+            bodyText: 'var(--preview-body-text)',
+          },
+          orange: {
+            headBg: 'var(--consumer-orange-dark)',
+            headText: 'var(--consumer-orange-light)',
+            bodyBg: 'var(--preset-orange-bg)',
+            bodyText: 'var(--preview-body-text)',
+          },
+        }
+        const PRESET_NAMES = Object.keys(PRESET_MAP)
+
+        let cols = 3
+        let rows = 3
+        let widthMode = 'equal' // equal | content | custom
+        let header = Array.from({ length: cols }, (_, i) => `Header ${i + 1}`)
+        let body = Array.from({ length: rows }, () => Array.from({ length: cols }, (_, j) => `Cell ${j + 1}`))
+        let presets = Array.from({ length: cols }, () => 'default')
+        let ratios = Array.from({ length: cols }, () => 1)
+        /* per-column bold toggles (false = normal, true = bold) */
+        let bolds = Array.from({ length: cols }, () => false)
+        /* NEW: per-column text align ('left' | 'center' | 'right') */
+        let aligns = Array.from({ length: cols }, () => 'left')
+
+        const el = sel => document.querySelector(sel)
+        const create = (tag, props = {}) => Object.assign(document.createElement(tag), props)
+
+        function jsxEscape(s) {
+          return (s ?? '').toString().replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        }
+
+        function wrapTranslate(text, keyAttr) {
+          const safe = jsxEscape(text) || '&nbsp;'
+          return keyAttr ? `<Translate ${keyAttr}>${safe}</Translate>` : `<Translate>${safe}</Translate>`
+        }
+
+        function syncRatiosInputs() {
+          const wrap = el('#ratiosWrap')
+          wrap.innerHTML = ''
+          if (widthMode !== 'custom') {
+            wrap.style.display = 'none'
+            return
+          }
+          wrap.style.display = 'flex'
+          for (let c = 0; c < cols; c++) {
+            const input = create('input', { type: 'number', value: ratios[c], min: '0', step: '0.1' })
+            input.addEventListener('input', () => {
+              const v = parseFloat(input.value)
+              ratios[c] = isFinite(v) && v >= 0 ? v : 0
+              render()
+            })
+            const lab = create('label')
+            lab.textContent = `C${c + 1} `
+            lab.style.color = 'var(--ui-muted)'
+            lab.appendChild(input)
+            wrap.appendChild(lab)
+          }
+        }
+
+        function renderColumnControls() {
+          const holder = el('#columnControls')
+          holder.innerHTML = ''
+          for (let c = 0; c < cols; c++) {
+            const row = create('div')
+            row.className = 'row'
+            row.style.marginBottom = '8px'
+
+            const h = create('div')
+            h.style.display = 'grid'
+            h.style.gridTemplateColumns = 'minmax(180px, 360px) auto'
+            h.style.gap = '10px'
+            const th = create('div', { textContent: 'Header ' + (c + 1) })
+            th.style.color = 'var(--ui-muted)'
+            const input = create('input', { type: 'text', value: header[c] })
+            input.addEventListener('input', () => {
+              header[c] = input.value
+              renderTable()
+              renderCode()
+            })
+            h.appendChild(th)
+            h.appendChild(input)
+            row.appendChild(h)
+
+            const sw = create('div')
+            sw.className = 'swatch-row'
+            PRESET_NAMES.forEach(name => {
+              const btn = create('button')
+              btn.className = 'swatch'
+              btn.setAttribute('type', 'button')
+              btn.dataset.name = name
+              btn.setAttribute('aria-label', name)
+              btn.setAttribute('aria-pressed', presets[c] === name ? 'true' : 'false')
+              btn.addEventListener('click', () => {
+                presets[c] = name
+                renderTable()
+                renderColumnControls()
+                renderCode()
+              })
+              sw.appendChild(btn)
+            })
+            row.appendChild(sw)
+
+            holder.appendChild(row)
+          }
+        }
+
+        /* widths calc shared by table + control grids */
+        function computeColumnWidths() {
+          if (widthMode === 'equal') {
+            return Array.from({ length: cols }, () => (100 / cols).toFixed(6) + '%')
+          }
+          if (widthMode === 'content') {
+            return Array.from({ length: cols }, () => 'auto')
+          }
+          const total = ratios.reduce((a, b) => a + (isFinite(b) ? b : 0), 0) || 1
+          return Array.from({ length: cols }, (_, i) => ((Math.max(0, ratios[i]) / total) * 100).toFixed(6) + '%')
+        }
+
+        /* bold toggle row */
+        function renderBoldControls() {
+          const host = el('#boldControls')
+          host.innerHTML = ''
+          const widths = computeColumnWidths()
+          const template = widths.includes('auto') ? `repeat(${cols}, auto)` : widths.join(' ')
+          host.style.gridTemplateColumns = template
+
+          for (let c = 0; c < cols; c++) {
+            const btn = create('button')
+            btn.className = 'boldToggle'
+            btn.type = 'button'
+            btn.textContent = 'Aa'
+            btn.setAttribute('aria-pressed', bolds[c] ? 'true' : 'false')
+            btn.style.fontWeight = bolds[c] ? '700' : '400'
+            btn.addEventListener('click', () => {
+              bolds[c] = !bolds[c]
+              renderBoldControls()
+              renderTable()
+              renderCode()
+            })
+            host.appendChild(btn)
+          }
+        }
+
+        /* NEW: alignment row (L/C/R) */
+        function renderAlignControls() {
+          const host = el('#alignControls')
+          host.innerHTML = ''
+          const widths = computeColumnWidths()
+          const template = widths.includes('auto') ? `repeat(${cols}, auto)` : widths.join(' ')
+          host.style.gridTemplateColumns = template
+
+          for (let c = 0; c < cols; c++) {
+            const group = create('div')
+            group.className = 'alignGroup'
+
+            ;[
+              { label: 'L', val: 'left' },
+              { label: 'C', val: 'center' },
+              { label: 'R', val: 'right' },
+            ].forEach(opt => {
+              const b = create('button')
+              b.className = 'alignBtn'
+              b.type = 'button'
+              b.textContent = opt.label
+              b.setAttribute('aria-pressed', aligns[c] === opt.val ? 'true' : 'false')
+              b.addEventListener('click', () => {
+                aligns[c] = opt.val
+                renderAlignControls()
+                renderTable()
+                renderCode()
+              })
+              group.appendChild(b)
+            })
+
+            host.appendChild(group)
+          }
+        }
+
+        function renderTable() {
+          const colg = el('#colgroup')
+          colg.innerHTML = ''
+          if (widthMode === 'equal') {
+            const pct = (100 / cols).toFixed(6) + '%'
+            for (let i = 0; i < cols; i++) {
+              const c = create('col')
+              c.style.width = pct
+              colg.appendChild(c)
+            }
+          } else if (widthMode === 'content') {
+            for (let i = 0; i < cols; i++) {
+              const c = create('col')
+              c.style.width = 'auto'
+              colg.appendChild(c)
+            }
+          } else {
+            // custom
+            const total = ratios.reduce((a, b) => a + (isFinite(b) ? b : 0), 0) || 1
+            for (let i = 0; i < cols; i++) {
+              const pct = (Math.max(0, ratios[i]) / total) * 100
+              const c = create('col')
+              c.style.width = pct.toFixed(6) + '%'
+              colg.appendChild(c)
+            }
+          }
+
+          const theadRow = el('#theadRow')
+          theadRow.innerHTML = ''
+          for (let c = 0; c < cols; c++) {
+            const th = create('th')
+            th.contentEditable = 'true'
+            th.innerHTML = jsxEscape(header[c])
+            th.addEventListener('input', () => {
+              header[c] = th.textContent
+              renderCode()
+            })
+
+            const p = PRESET_MAP[presets[c]]
+            th.style.setProperty('--head' + (c + 1) + '-bg', p.headBg)
+            th.style.setProperty('--head' + (c + 1) + '-text', p.headText)
+            th.style.background = p.headBg
+            th.style.color = p.headText
+            theadRow.appendChild(th)
+          }
+
+          const tbody = el('#tbody')
+          tbody.innerHTML = ''
+          for (let r = 0; r < rows; r++) {
+            const tr = create('tr')
+            for (let c = 0; c < cols; c++) {
+              const td = create('td')
+              td.contentEditable = 'true'
+              td.innerHTML = jsxEscape(body[r][c])
+              td.addEventListener('input', () => {
+                body[r][c] = td.textContent
+                renderCode()
+              })
+              const p = PRESET_MAP[presets[c]]
+              td.style.setProperty('--col' + (c + 1) + '-bg', p.bodyBg)
+              td.style.setProperty('--col' + (c + 1) + '-text', p.bodyText)
+              td.style.background = p.bodyBg
+              td.style.color = p.bodyText
+              /* bold + align per column on BODY cells */
+              td.style.fontWeight = bolds[c] ? '700' : '400'
+              td.style.textAlign = aligns[c]
+              tr.appendChild(td)
+            }
+            tbody.appendChild(tr)
+          }
+        }
+
+        function renderCode() {
+          const hdr = header.map((h, i) => wrapTranslate(h, `key="h${i + 1}"`)).join(',\n    ')
+          const presetLit = presets.map(p => `'${p}'`).join(', ')
+          const weightsLit = bolds.map(b => (b ? "'bold'" : "'normal'")).join(', ')
+          const alignsLit = aligns.map(a => `'${a}'`).join(', ')
+
+          const rowsCode = body
+            .map(row => {
+              const cells = row.map(cell => `    <DataTable.Cell>${wrapTranslate(cell)}</DataTable.Cell>`).join('\n')
+              return `  <DataTable.Row>\n${cells}\n  </DataTable.Row>`
+            })
+            .join('\n\n')
+
+          const lines = []
+          lines.push(`import DataTable from '@site/src/components/DataTable'`)
+          lines.push(`import Translate from '@docusaurus/Translate'`)
+          lines.push(``)
+          lines.push(`<DataTable`)
+          lines.push(`  headers={[`)
+          lines.push(`    ${hdr}`)
+          lines.push(`  ]}`)
+          if (widthMode === 'content') {
+            lines.push(`  widthMode="content"`)
+          } else if (widthMode === 'custom') {
+            const safe = ratios.map(v => {
+              const n = parseFloat(v)
+              return isFinite(n) && n >= 0 ? n : 0
+            })
+            lines.push(`  colRatios={[${safe.join(', ')}]}`)
+          }
+          lines.push(`  colPresets={[${presetLit}]}`)
+          /* If your component supports these props, keep both lines. Otherwise remove as needed. */
+          lines.push(`  colWeights={[${weightsLit}]}`)
+          lines.push(`  colAligns={[${alignsLit}]}`)
+          lines.push(`>`)
+          lines.push(rowsCode)
+          lines.push(`</DataTable>`)
+
+          el('#codeOut').value = lines.join('\n')
+        }
+
+        function render() {
+          renderColumnControls()
+          syncRatiosInputs()
+          renderBoldControls()
+          renderAlignControls()
+          renderTable()
+          renderCode()
+        }
+
+        document.getElementById('addCol').addEventListener('click', () => {
+          cols++
+          header.push(`Header ${cols}`)
+          body = body.map(row => (row.push(`Cell ${cols}`), row))
+          presets.push('default')
+          ratios.push(1)
+          bolds.push(false)
+          aligns.push('left')
+          render()
+        })
+        document.getElementById('delCol').addEventListener('click', () => {
+          if (cols <= 1) return
+          cols--
+          header.length = cols
+          body = body.map(row => ((row.length = cols), row))
+          presets.length = cols
+          ratios.length = cols
+          bolds.length = cols
+          aligns.length = cols
+          render()
+        })
+        document.getElementById('addRow').addEventListener('click', () => {
+          rows++
+          body.push(Array.from({ length: cols }, (_, j) => `Cell ${j + 1}`))
+          renderTable()
+          renderCode()
+        })
+        document.getElementById('delRow').addEventListener('click', () => {
+          if (rows <= 1) return
+          rows--
+          body.length = rows
+          renderTable()
+          renderCode()
+        })
+
+        document.getElementById('widthModeGroup').addEventListener('change', e => {
+          if (e.target.name === 'widthmode') {
+            widthMode = e.target.value
+            syncRatiosInputs()
+            renderBoldControls()
+            renderAlignControls()
+            renderTable()
+            renderCode()
+          }
+        })
+
+        document.getElementById('copyBtn').addEventListener('click', async () => {
+          const code = el('#codeOut').value
+          try {
+            await navigator.clipboard.writeText(code)
+            const note = el('#copiedNote')
+            note.style.display = 'inline'
+            setTimeout(() => (note.style.display = 'none'), 1200)
+          } catch {
+            el('#codeOut').focus()
+            el('#codeOut').select()
+          }
+        })
+
+        const host = document.getElementById('previewHost')
+        const lightBtn = document.getElementById('lightBtn')
+        const darkBtn = document.getElementById('darkBtn')
+
+        function setPreviewTheme(mode) {
+          if (mode === 'light') {
+            host.classList.remove('preview--dark')
+            host.classList.add('preview--light')
+            lightBtn.setAttribute('aria-pressed', 'true')
+            darkBtn.setAttribute('aria-pressed', 'false')
+          } else {
+            host.classList.remove('preview--light')
+            host.classList.add('preview--dark')
+            lightBtn.setAttribute('aria-pressed', 'false')
+            darkBtn.setAttribute('aria-pressed', 'true')
+          }
+          renderTable()
+        }
+        lightBtn.addEventListener('click', () => setPreviewTheme('light'))
+        darkBtn.addEventListener('click', () => setPreviewTheme('dark'))
+
+        render()
+      })()
+    </script>
+  </body>
+</html>
