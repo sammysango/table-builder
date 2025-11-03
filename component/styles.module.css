@@ -1,0 +1,352 @@
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
+  font-size: 0.95rem;
+  table-layout: auto;
+}
+
+.scrollWrap {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+}
+
+.scrollWrap:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+}
+
+.dataTable {
+  width: 100% !important;
+  max-width: 100% !important;
+  display: table !important;
+
+  --table-grid: 2px;
+}
+
+tbody tr:nth-child(even),
+tbody tr:nth-child(odd),
+td {
+  background-color: var(--connect-card);
+}
+
+th,
+td {
+  padding: 12px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.table th,
+.table td {
+  border: 0;
+  border-top: var(--table-grid) solid var(--bg-3);
+  border-left: var(--table-grid) solid var(--bg-3);
+}
+
+.table tr > *:last-child {
+  border-right: var(--table-grid) solid var(--bg-3);
+}
+
+.table tbody tr:last-child > * {
+  border-bottom: var(--table-grid) solid var(--bg-3);
+}
+
+.table thead tr:first-child > * {
+  border-top: var(--table-grid) solid var(--bg-3);
+}
+
+.mainHeader th {
+  background-color: var(--chart-header);
+  color: var(--chart-header-text);
+  font-size: 2rem;
+  text-align: center;
+}
+
+.table .mainHeader th {
+  text-align: center;
+  height: 6.5rem;
+  padding: 0 0.8rem;
+}
+
+/* .table td:first-child {
+  font-weight: 600;
+} */
+
+.unbold {
+  font-weight: normal;
+}
+
+.unboldFirstCol td:first-child {
+  font-weight: normal;
+}
+
+.compact th,
+.compact td {
+  padding: 8px 10px;
+  font-size: 0.92rem;
+}
+
+.visuallyHidden {
+  position: absolute !important;
+  height: 1px;
+  width: 1px;
+  overflow: hidden;
+  clip: rect(1px, 1px, 1px, 1px);
+  white-space: nowrap;
+}
+
+.dataTable tbody tr:hover td {
+  filter: brightness(0.985);
+}
+
+.dataTable th:nth-child(1),
+.dataTable td:nth-child(1) {
+  min-width: var(--c1-min, 0);
+}
+
+.dataTable th:nth-child(2),
+.dataTable td:nth-child(2) {
+  min-width: var(--c2-min, 0);
+}
+
+.dataTable th:nth-child(3),
+.dataTable td:nth-child(3) {
+  min-width: var(--c3-min, 0);
+}
+
+.dataTable th:nth-child(4),
+.dataTable td:nth-child(4) {
+  min-width: var(--c4-min, 0);
+}
+
+.dataTable th:nth-child(5),
+.dataTable td:nth-child(5) {
+  min-width: var(--c5-min, 0);
+}
+
+.dataTable th:nth-child(6),
+.dataTable td:nth-child(6) {
+  min-width: var(--c6-min, 0);
+}
+
+.dataTable th:nth-child(7),
+.dataTable td:nth-child(7) {
+  min-width: var(--c7-min, 0);
+}
+
+.dataTable th:nth-child(8),
+.dataTable td:nth-child(8) {
+  min-width: var(--c8-min, 0);
+}
+
+.dataTable th:nth-child(9),
+.dataTable td:nth-child(9) {
+  min-width: var(--c9-min, 0);
+}
+
+.dataTable th:nth-child(10),
+.dataTable td:nth-child(10) {
+  min-width: var(--c10-min, 0);
+}
+
+.dataTable th:nth-child(11),
+.dataTable td:nth-child(11) {
+  min-width: var(--c11-min, 0);
+}
+
+.dataTable th:nth-child(12),
+.dataTable td:nth-child(12) {
+  min-width: var(--c12-min, 0);
+}
+
+.dataTable tbody td:nth-child(1) {
+  background-color: var(--col1-bg, inherit);
+  color: var(--col1-text, inherit);
+  text-align: var(--a1, left) !important;
+}
+
+.dataTable tbody td:nth-child(2) {
+  background-color: var(--col2-bg, inherit);
+  color: var(--col2-text, inherit);
+  text-align: var(--a2, left) !important;
+}
+
+.dataTable tbody td:nth-child(3) {
+  background-color: var(--col3-bg, inherit);
+  color: var(--col3-text, inherit);
+  text-align: var(--a3, left) !important;
+}
+
+.dataTable tbody td:nth-child(4) {
+  background-color: var(--col4-bg, inherit);
+  color: var(--col4-text, inherit);
+  text-align: var(--a4, left) !important;
+}
+
+.dataTable tbody td:nth-child(5) {
+  background-color: var(--col5-bg, inherit);
+  color: var(--col5-text, inherit);
+  text-align: var(--a5, left) !important;
+}
+
+.dataTable tbody td:nth-child(6) {
+  background-color: var(--col6-bg, inherit);
+  color: var(--col6-text, inherit);
+  text-align: var(--a6, left) !important;
+}
+
+.dataTable tbody td:nth-child(7) {
+  background-color: var(--col7-bg, inherit);
+  color: var(--col7-text, inherit);
+  text-align: var(--a7, left) !important;
+}
+
+.dataTable tbody td:nth-child(8) {
+  background-color: var(--col8-bg, inherit);
+  color: var(--col8-text, inherit);
+  text-align: var(--a8, left) !important;
+}
+
+.dataTable tbody td:nth-child(9) {
+  background-color: var(--col9-bg, inherit);
+  color: var(--col9-text, inherit);
+  text-align: var(--a9, left) !important;
+}
+
+.dataTable tbody td:nth-child(10) {
+  background-color: var(--col10-bg, inherit);
+  color: var(--col10-text, inherit);
+  text-align: var(--a10, left) !important;
+}
+
+.dataTable tbody td:nth-child(11) {
+  background-color: var(--col11-bg, inherit);
+  color: var(--col11-text, inherit);
+  text-align: var(--a11, left) !important;
+}
+
+.dataTable tbody td:nth-child(12) {
+  background-color: var(--col12-bg, inherit);
+  color: var(--col12-text, inherit);
+  text-align: var(--a12, left) !important;
+}
+
+.dataTable thead .mainHeader th:nth-child(1) {
+  background-color: var(--head1-bg, var(--chart-header));
+  color: var(--head1-text, var(--chart-header-text));
+}
+
+.dataTable thead .mainHeader th:nth-child(2) {
+  background-color: var(--head2-bg, var(--chart-header));
+  color: var(--head2-text, var(--chart-header-text));
+}
+
+.dataTable thead .mainHeader th:nth-child(3) {
+  background-color: var(--head3-bg, var(--chart-header));
+  color: var(--head3-text, var(--chart-header-text));
+}
+
+.dataTable thead .mainHeader th:nth-child(4) {
+  background-color: var(--head4-bg, var(--chart-header));
+  color: var(--head4-text, var(--chart-header-text));
+}
+
+.dataTable thead .mainHeader th:nth-child(5) {
+  background-color: var(--head5-bg, var(--chart-header));
+  color: var(--head5-text, var(--chart-header-text));
+}
+
+.dataTable thead .mainHeader th:nth-child(6) {
+  background-color: var(--head6-bg, var(--chart-header));
+  color: var(--head6-text, var(--chart-header-text));
+}
+
+.dataTable thead .mainHeader th:nth-child(7) {
+  background-color: var(--head7-bg, var(--chart-header));
+  color: var(--head7-text, var(--chart-header-text));
+}
+
+.dataTable thead .mainHeader th:nth-child(8) {
+  background-color: var(--head8-bg, var(--chart-header));
+  color: var(--head8-text, var(--chart-header-text));
+}
+
+.dataTable thead .mainHeader th:nth-child(9) {
+  background-color: var(--head9-bg, var(--chart-header));
+  color: var(--head9-text, var(--chart-header-text));
+}
+
+.dataTable thead .mainHeader th:nth-child(10) {
+  background-color: var(--head10-bg, var(--chart-header));
+  color: var(--head10-text, var(--chart-header-text));
+}
+
+.dataTable thead .mainHeader th:nth-child(11) {
+  background-color: var(--head11-bg, var(--chart-header));
+  color: var(--head11-text, var(--chart-header-text));
+}
+
+.dataTable thead .mainHeader th:nth-child(12) {
+  background-color: var(--head12-bg, var(--chart-header));
+  color: var(--head12-text, var(--chart-header-text));
+}
+
+/* font weight per-column */
+.dataTable tbody td:nth-child(1) {
+  font-weight: var(--w1, inherit);
+}
+.dataTable tbody td:nth-child(2) {
+  font-weight: var(--w2, inherit);
+}
+.dataTable tbody td:nth-child(3) {
+  font-weight: var(--w3, inherit);
+}
+.dataTable tbody td:nth-child(4) {
+  font-weight: var(--w4, inherit);
+}
+.dataTable tbody td:nth-child(5) {
+  font-weight: var(--w5, inherit);
+}
+.dataTable tbody td:nth-child(6) {
+  font-weight: var(--w6, inherit);
+}
+.dataTable tbody td:nth-child(7) {
+  font-weight: var(--w7, inherit);
+}
+.dataTable tbody td:nth-child(8) {
+  font-weight: var(--w8, inherit);
+}
+.dataTable tbody td:nth-child(9) {
+  font-weight: var(--w9, inherit);
+}
+.dataTable tbody td:nth-child(10) {
+  font-weight: var(--w10, inherit);
+}
+.dataTable tbody td:nth-child(11) {
+  font-weight: var(--w11, inherit);
+}
+.dataTable tbody td:nth-child(12) {
+  font-weight: var(--w12, inherit);
+}
+
+@media (max-width: 500px) {
+  .dataTable {
+    min-width: max-content;
+  }
+
+  .dataTable td,
+  .dataTable th {
+    word-break: normal;
+    overflow-wrap: break-word;
+    hyphens: auto;
+  }
+}
+
+.dataTable thead tr {
+  border-bottom: 0 !important;
+}
